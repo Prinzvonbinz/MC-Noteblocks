@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MC Noteblock</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="main">
+    <h1>🎵 MC Noteblock</h1>
+    <button id="addBtn" class="main-btn">➕ Neuer Song</button>
+    <div id="songList" class="grid"></div>
+  </div>
+
+  <div id="editor" class="hidden">
+    <h2 id="editorTitle">🎶 Song bearbeiten</h2>
+    <input type="text" id="songName" placeholder="Songtitel eingeben" />
+    <input type="file" id="imageInput" accept="image/*" />
+    <textarea id="noteInput" placeholder="Notizen..."></textarea>
+    <div class="btn-row">
+      <button id="saveBtn">💾 Speichern</button>
+      <button id="deleteBtn">🗑️ Löschen</button>
+      <button id="backBtn">🔙 Zurück</button>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
