@@ -1,55 +1,36 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MC Notes</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MC Notes</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-
-    <div id="main-menu" class="screen active">
-      <h1>MC Notes - Hauptmenü</h1>
-      <button id="new-song-btn">Neuen Song erstellen</button>
-      <h2>Gespeicherte Songs</h2>
-      <ul id="song-list"></ul>
-    </div>
-
-    <div id="song-editor" class="screen">
-      <button id="back-to-menu">&larr; Zurück</button>
-      <h2>Song bearbeiten</h2>
-      <label>
-        Songtitel: 
-        <input type="text" id="song-title" />
-      </label>
-      <button id="toggle-lock-btn">Sperren</button>
-
-      <div id="layer-switcher">
-        <button id="layer-lower" class="active">Ebene: Blöcke (unten)</button>
-        <button id="layer-upper">Ebene: Items (oben)</button>
-      </div>
-
-      <div id="input-controls">
-        <label>
-          Buchstabe (N,R,V,B,K):
-          <input type="text" maxlength="1" id="char-input" />
-        </label>
-        <div id="extra-inputs">
-          <!-- Dynamisch je nach Buchstabe -->
-        </div>
-        <button id="place-btn">Platzieren</button>
-      </div>
-
-      <div id="grid-container">
-        <div id="grid"></div>
-      </div>
-
-      <button id="save-song-btn">Speichern</button>
-    </div>
-
+  <div id="menu">
+    <h1>🎵 MC Notes</h1>
+    <input id="songTitleInput" placeholder="Songtitel eingeben" />
+    <button onclick="createSong()">Song erstellen</button>
+    <h2>Gespeicherte Songs:</h2>
+    <ul id="songList"></ul>
   </div>
 
-<script src="main.js"></script>
+  <div id="editor" style="display:none;">
+    <div class="top-bar">
+      <button onclick="showMenu()">⬅ Zurück</button>
+      <span id="songName"></span>
+      <button onclick="toggleLock()"><span id="lockStatus">🔓</span></button>
+      <button onclick="switchLayer()">Ebene wechseln (Aktuell: <span id="layerInfo">0</span>)</button>
+    </div>
+    <div id="grid"></div>
+    <div class="nav-buttons">
+      <button onclick="move(0, -1)">⬆</button>
+      <button onclick="move(-1, 0)">⬅</button>
+      <button onclick="move(1, 0)">➡</button>
+      <button onclick="move(0, 1)">⬇</button>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
 </body>
 </html>
