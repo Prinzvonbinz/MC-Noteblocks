@@ -1,156 +1,174 @@
-let songs = JSON.parse(localStorage.getItem("mcnotes_songs") || "{}");
-let currentSong = null;
-let currentLayer = 0;
-let offsetX = 0;
-let offsetY = 0;
+let currentSong = '';
+let gridOffset = { x: 0, y: 0 };
+let currentLayer = 'top'; // 'top' or 'bottom'
+let locked = false;
 
-function saveSongs() {
-  localStorage.setItem("mcnotes_songs", JSON.stringify(songs));
+const grid = document.getElementById('grid');
+const titleInput = document.getElementById('titleInput');
+const editor = document.getElementById('editor');
+const menu = document.getElementById('menu');
+const songList = document.getElementById('songList');
+const layerInfo = document.getElementById('layerInfo');
+const lockButton = document.getElementById('lockButton');
+
+const noteOptions = Array.from({ length: 24 }, (_, i) => `N${i + 1}`);
+const ampOptions = ['→', '←', '↑', '↓'].flatMap(d =>
+  Array.from({ length: 4 }, (_, i) => `V${i + 1}${d}`)
+);
+const redstoneOptions = ['R'];
+const buttonOptions = ['K'];
+const blockOptions = [
+  'Bnoteblock', 'Bglass', 'Bstone', 'Bwood', 'Bsand', 'Bgold', 'Biron', 'Bclay'
+];
+
+const allOptions = [...noteOptions, ...ampOptions, ...redstoneOptions, ...buttonOptions, ...blockOptions];
+
+function createCell(x, y) {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+
+  const select = document.createElement('select');
+  const empty = document.createElement('option');
+  empty.value = '';
+  empty.textContent = '-';
+  select.appendChild(empty);
+
+  allOptions.forEach(opt => {
+    const option = document.createElement('option');
+    option.value = opt;
+    option.textContent = opt;
+    select.appendChild(option);
+  });
+
+  const key = `${x},${y},${currentLayer}`;
+  const data = JSON.parse(localStorage.getItem('mcnotes_' + currentSong)) || {};
+  if (data[key]) select.value = data[key];
+
+  select.disabled = locked;
+
+  select.addEventListener('change', () => {
+    const val = select.value;
+    const songData = JSON.parse(localStorage.getItem('mcnotes_' + currentSong)) || {};
+    if (val === '') {
+      delete songData[key];
+    } else {
+      songData[key] = val;
+    }
+    localStorage.setItem('mcnotes_' + currentSong, JSON.stringify(songData));
+  });
+
+  cell.appendChild(select);
+  return cell;
 }
 
-function createSong() {
-  const title = document.getElementById("songTitleInput").value.trim();
-  if (!title || songs[title]) return alert("Ungültig oder bereits vorhanden!");
-  songs[title] = { locked: false, layers: [{}, {}] };
-  saveSongs();
-  loadSongList();
-  document.getElementById("songTitleInput").value = "";
+function renderGrid() {
+  grid.innerHTML = '';
+  for (let dy = 0; dy < 7; dy++) {
+    for (let dx = 0; dx < 7; dx++) {
+      const x = gridOffset.x + dx;
+      const y = gridOffset.y + dy;
+      grid.appendChild(createCell(x, y));
+    }
+  }
+  layerInfo.textContent = currentLayer === 'top' ? 'Ebene: Oben' : 'Ebene: Unten';
+  lockButton.textContent = locked ? 'Entsperren' : 'Sperren';
 }
 
-function loadSongList() {
-  const ul = document.getElementById("songList");
-  ul.innerHTML = "";
-  Object.keys(songs).forEach(title => {
-    const li = document.createElement("li");
-    li.textContent = title;
-    li.addEventListener("click", () => openSong(title));
-    li.addEventListener("touchstart", e => {
-      li.dataset.touchstart = Date.now();
+function saveSong() {
+  const name = titleInput.value.trim();
+  if (!name) return alert('Bitte einen Titel eingeben!');
+  currentSong = name;
+  localStorage.setItem('mcnotes_list', JSON.stringify([...getSongList().filter(n => n !== name), name]));
+  if (!localStorage.getItem('mcnotes_' + name)) {
+    localStorage.setItem('mcnotes_' + name, JSON.stringify({}));
+  }
+  showEditor();
+}
+
+function getSongList() {
+  return JSON.parse(localStorage.getItem('mcnotes_list')) || [];
+}
+
+function loadSongs() {
+  songList.innerHTML = '';
+  const names = getSongList();
+  names.forEach(name => {
+    const li = document.createElement('li');
+    li.textContent = name;
+    li.addEventListener('click', () => {
+      currentSong = name;
+      showEditor();
     });
-    li.addEventListener("touchend", e => {
-      const duration = Date.now() - li.dataset.touchstart;
-      if (duration > 800) {
-        if (confirm(`"${title}" wirklich löschen?`)) {
-          delete songs[title];
-          saveSongs();
-          loadSongList();
-        }
-      }
+
+    // Langes Drücken zum Löschen
+    let pressTimer;
+    li.addEventListener('mousedown', () => {
+      pressTimer = setTimeout(() => confirmDelete(name), 700);
     });
-    ul.appendChild(li);
+    li.addEventListener('mouseup', () => clearTimeout(pressTimer));
+    li.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+    li.addEventListener('touchstart', () => {
+      pressTimer = setTimeout(() => confirmDelete(name), 700);
+    });
+    li.addEventListener('touchend', () => clearTimeout(pressTimer));
+
+    songList.appendChild(li);
   });
 }
 
+function confirmDelete(name) {
+  if (confirm(`Möchtest du den Song "${name}" wirklich löschen?`)) {
+    localStorage.removeItem('mcnotes_' + name);
+    const list = getSongList().filter(n => n !== name);
+    localStorage.setItem('mcnotes_list', JSON.stringify(list));
+    loadSongs();
+  }
+}
+
+function showEditor() {
+  menu.style.display = 'none';
+  editor.style.display = 'block';
+  gridOffset = { x: 0, y: 0 };
+  currentLayer = 'top';
+  locked = false;
+  renderGrid();
+}
+
 function showMenu() {
-  document.getElementById("editor").style.display = "none";
-  document.getElementById("menu").style.display = "block";
-  currentSong = null;
-  loadSongList();
+  menu.style.display = 'block';
+  editor.style.display = 'none';
+  titleInput.value = '';
+  loadSongs();
 }
 
-function openSong(title) {
-  currentSong = title;
-  document.getElementById("songName").textContent = title;
-  document.getElementById("lockStatus").textContent = songs[title].locked ? "🔒" : "🔓";
-  document.getElementById("layerInfo").textContent = currentLayer;
-  document.getElementById("menu").style.display = "none";
-  document.getElementById("editor").style.display = "block";
-  updateGrid();
-}
+document.getElementById('saveBtn').addEventListener('click', saveSong);
+document.getElementById('backBtn').addEventListener('click', showMenu);
 
-function toggleLock() {
-  if (!currentSong) return;
-  songs[currentSong].locked = !songs[currentSong].locked;
-  document.getElementById("lockStatus").textContent = songs[currentSong].locked ? "🔒" : "🔓";
-  saveSongs();
-  updateGrid();
-}
+document.getElementById('upBtn').addEventListener('click', () => {
+  gridOffset.y -= 1;
+  renderGrid();
+});
+document.getElementById('downBtn').addEventListener('click', () => {
+  gridOffset.y += 1;
+  renderGrid();
+});
+document.getElementById('leftBtn').addEventListener('click', () => {
+  gridOffset.x -= 1;
+  renderGrid();
+});
+document.getElementById('rightBtn').addEventListener('click', () => {
+  gridOffset.x += 1;
+  renderGrid();
+});
 
-function switchLayer() {
-  currentLayer = currentLayer === 0 ? 1 : 0;
-  document.getElementById("layerInfo").textContent = currentLayer;
-  updateGrid();
-}
+document.getElementById('switchLayerBtn').addEventListener('click', () => {
+  currentLayer = currentLayer === 'top' ? 'bottom' : 'top';
+  renderGrid();
+});
 
-function move(dx, dy) {
-  offsetX += dx;
-  offsetY += dy;
-  updateGrid();
-}
+lockButton.addEventListener('click', () => {
+  locked = !locked;
+  renderGrid();
+});
 
-function updateGrid() {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-  const layer = songs[currentSong].layers[currentLayer];
-  const locked = songs[currentSong].locked;
-
-  for (let y = 0; y < 7; y++) {
-    for (let x = 0; x < 7; x++) {
-      const cell = document.createElement("div");
-      cell.className = "cell";
-      const key = `${x + offsetX},${y + offsetY}`;
-
-      const select = document.createElement("select");
-      const currentValue = layer[key] || "";
-      const isLayer0 = currentLayer === 0;
-      const options = isLayer0 ? getBlockOptions() : getItemOptions();
-
-      const emptyOption = document.createElement("option");
-      emptyOption.value = "";
-      emptyOption.textContent = "--";
-      select.appendChild(emptyOption);
-
-      options.forEach(opt => {
-        const option = document.createElement("option");
-        option.value = opt;
-        option.textContent = opt;
-        select.appendChild(option);
-      });
-
-      select.value = currentValue;
-
-      if (locked) select.disabled = true;
-
-      select.addEventListener("change", e => {
-        layer[key] = e.target.value;
-        saveSongs();
-      });
-
-      cell.appendChild(select);
-      grid.appendChild(cell);
-    }
-  }
-}
-
-function getBlockOptions() {
-  return [
-    "BDIRT",     // Harfe
-    "BSTONE",    // Bass
-    "BSAND",     // Snare
-    "BGLASS",    // Klick
-    "BOBSIDIAN", // Bassdrum
-    "BWOOD",     // Gitarre
-    "BGOLD",     // Glockenspiel
-    "BCLAY",     // Flöte
-    "BPACKED",   // Xylophon
-    "BIRON",     // Vibraphon
-    "BEMERALD",  // Kuhglocke
-    "BBONE",     // Didgeridoo
-    "BWOOL",     // Banjo
-    "BPISTON"    // Bit
-  ];
-}
-
-function getItemOptions() {
-  const items = [];
-  for (let i = 1; i <= 24; i++) items.push("N" + i);
-  items.push("R");
-  const dirs = ["↑", "↓", "←", "→"];
-  for (let i = 1; i <= 4; i++) {
-    dirs.forEach(d => items.push(`V${i}${d}`));
-  }
-  items.push("K");
-  return items;
-}
-
-loadSongList();
+loadSongs();
