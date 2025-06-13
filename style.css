@@ -6,18 +6,20 @@ body {
 }
 
 #menu, #editor {
-  padding: 20px;
+  padding: 15px;
 }
 
 input, select, button {
-  font-size: 16px;
-  padding: 5px;
+  font-size: 14px;
+  padding: 6px;
   margin: 5px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #songList li {
   margin: 5px 0;
-  padding: 5px;
+  padding: 8px;
   background: #333;
   border-radius: 5px;
   cursor: pointer;
@@ -30,7 +32,7 @@ input, select, button {
 #grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
+  gap: 2px;
   margin: 10px 0;
 }
 
@@ -41,6 +43,7 @@ input, select, button {
   justify-content: center;
   align-items: center;
   background: #222;
+  padding: 1px;
 }
 
 .cell select {
@@ -48,20 +51,24 @@ input, select, button {
   background: #333;
   color: #eee;
   border: none;
-  font-size: 14px;
+  font-size: 12px;
+  max-height: 32px;
 }
 
 .top-bar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
 }
 
 .nav-buttons {
   display: flex;
   justify-content: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 button {
@@ -69,10 +76,32 @@ button {
   border: none;
   color: #fff;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 5px;
+  font-size: 14px;
+  min-width: 90px;
 }
 
 button:hover {
   background: #666;
+}
+
+/* 📱 Extra mobile tweaks */
+@media (max-width: 600px) {
+  #grid {
+    gap: 1px;
+  }
+
+  .cell {
+    min-height: 35px;
+  }
+
+  button, input, select {
+    font-size: 13px;
+  }
+
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
