@@ -1,107 +1,155 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #1e1e1e;
-  color: #eee;
+:root {
+  --bg-dark: #1e1e1e;
+  --bg-card: #2c2c2c;
+  --text-light: #eee;
+  --accent: #8ab4f8;
+  --border: #444;
 }
 
-#menu, #editor {
-  padding: 15px;
-}
-
-input, select, button {
-  font-size: 14px;
-  padding: 6px;
-  margin: 5px 0;
-  width: 100%;
+* {
   box-sizing: border-box;
 }
 
-#songList li {
-  margin: 5px 0;
-  padding: 8px;
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+/* ---------------------- Allgemeine Elemente ---------------------- */
+
+input, select, button {
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  margin: 0.3rem 0;
+}
+
+input, select {
   background: #333;
-  border-radius: 5px;
+  color: var(--text-light);
+  width: 100%;
+}
+
+button {
+  background-color: var(--accent);
+  color: black;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+h1, h2 {
+  margin: 0.5rem 0;
+}
+
+/* ---------------------- Menü (Songliste) ---------------------- */
+
+#menu {
+  padding: 1rem;
+}
+
+#songList {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+}
+
+#songList li {
+  background-color: var(--bg-card);
+  margin: 0.4rem 0;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
   cursor: pointer;
 }
 
 #songList li:hover {
-  background: #444;
+  background-color: #3a3a3a;
 }
 
-#grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  margin: 10px 0;
-}
+/* ---------------------- Editor ---------------------- */
 
-.cell {
-  border: 1px solid #555;
-  min-height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #222;
-  padding: 1px;
-}
-
-.cell select {
-  width: 100%;
-  background: #333;
-  color: #eee;
-  border: none;
-  font-size: 12px;
-  max-height: 32px;
+#editor {
+  padding: 0.8rem;
 }
 
 .top-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 10px;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
 }
+
+.top-bar > * {
+  flex: 1 1 120px;
+}
+
+/* ---------------------- Grid ---------------------- */
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cell {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+}
+
+.cell select {
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+/* ---------------------- Navigation Buttons ---------------------- */
 
 .nav-buttons {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-around;
   flex-wrap: wrap;
+  margin-top: 1rem;
 }
 
-button {
-  background: #444;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  min-width: 90px;
+.nav-buttons button {
+  flex: 1 1 40px;
+  margin: 0.2rem;
 }
 
-button:hover {
-  background: #666;
-}
+/* ---------------------- Responsive Anpassung ---------------------- */
 
-/* 📱 Extra mobile tweaks */
 @media (max-width: 600px) {
   #grid {
     gap: 1px;
   }
 
   .cell {
-    min-height: 35px;
-  }
-
-  button, input, select {
-    font-size: 13px;
+    min-height: 32px;
   }
 
   .top-bar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .nav-buttons button {
+    font-size: 0.9rem;
+    padding: 0.6rem;
+  }
+
+  input, select, button {
+    font-size: 0.95rem;
   }
 }
