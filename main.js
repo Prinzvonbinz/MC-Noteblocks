@@ -18,7 +18,7 @@ const ampOptions = ['→', '←', '↑', '↓'].flatMap(d =>
 const redstoneOptions = ['R'];
 const buttonOptions = ['K'];
 const blockOptions = [
-  'Bnoteblock', 'Bglass', 'Bstone', 'Bwood', 'Bsand', 'Bgold', 'Biron', 'Bclay'
+  'BNoteblock', 'BGlass', 'BStone', 'BWood', 'BSand', 'BGold', 'BIron', 'BClay'
 ];
 
 const allOptions = [...noteOptions, ...ampOptions, ...redstoneOptions, ...buttonOptions, ...blockOptions];
