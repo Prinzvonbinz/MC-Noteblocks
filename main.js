@@ -18,8 +18,18 @@ const ampOptions = ['→', '←', '↑', '↓'].flatMap(d =>
 const redstoneOptions = ['R'];
 const buttonOptions = ['K'];
 const blockOptions = [
-  'BNoteblock', 'BGlass', 'BStone', 'BWood', 'BSand', 'BGold', 'BIron', 'BClay'
+  'Bnoteblock', 'Bglass', 'Bstone', 'Bwood', 'Bsand', 'Bgold', 'Biron', 'Bclay'
 ];
+const blockAbbr = {
+  'Bnoteblock': 'BN',
+  'Bglass': 'BG',
+  'Bstone': 'BS',
+  'Bwood': 'BW',
+  'Bsand': 'BSa',
+  'Bgold': 'BGd',
+  'Biron': 'BIr',
+  'Bclay': 'BC'
+};
 
 const allOptions = [...noteOptions, ...ampOptions, ...redstoneOptions, ...buttonOptions, ...blockOptions];
 
@@ -27,37 +37,46 @@ function createCell(x, y) {
   const cell = document.createElement('div');
   cell.className = 'cell';
 
-  const select = document.createElement('select');
-  const empty = document.createElement('option');
-  empty.value = '';
-  empty.textContent = '-';
-  select.appendChild(empty);
-
-  allOptions.forEach(opt => {
-    const option = document.createElement('option');
-    option.value = opt;
-    option.textContent = opt;
-    select.appendChild(option);
-  });
-
   const key = `${x},${y},${currentLayer}`;
   const data = JSON.parse(localStorage.getItem('mcnotes_' + currentSong)) || {};
-  if (data[key]) select.value = data[key];
+  const val = data[key] || '';
 
-  select.disabled = locked;
+  if (locked && currentLayer === 'bottom' && val.startsWith('B')) {
+    cell.textContent = blockAbbr[val] || val;
+    cell.style.fontWeight = 'bold';
+    cell.style.fontSize = '1.2em';
+    cell.style.textAlign = 'center';
+  } else {
+    const select = document.createElement('select');
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = '-';
+    select.appendChild(empty);
 
-  select.addEventListener('change', () => {
-    const val = select.value;
-    const songData = JSON.parse(localStorage.getItem('mcnotes_' + currentSong)) || {};
-    if (val === '') {
-      delete songData[key];
-    } else {
-      songData[key] = val;
-    }
-    localStorage.setItem('mcnotes_' + currentSong, JSON.stringify(songData));
-  });
+    allOptions.forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt;
+      option.textContent = opt;
+      select.appendChild(option);
+    });
 
-  cell.appendChild(select);
+    select.value = val;
+    select.disabled = locked;
+
+    select.addEventListener('change', () => {
+      const val = select.value;
+      const songData = JSON.parse(localStorage.getItem('mcnotes_' + currentSong)) || {};
+      if (val === '') {
+        delete songData[key];
+      } else {
+        songData[key] = val;
+      }
+      localStorage.setItem('mcnotes_' + currentSong, JSON.stringify(songData));
+    });
+
+    cell.appendChild(select);
+  }
+
   return cell;
 }
 
